@@ -230,9 +230,12 @@ public class PathFindingController : MonoBehaviour
         startNode = null;
         targetNode = null;
         finalNodeList.Clear();
+        priorityQueue.Clear();
 
         Debug.Log("# nodes of being visted : " + visitedNodeCount);
         visitedNodeCount = 0;
+
+        state = EPathFindingState.NONE;
     }
 
     #endregion Path Finding
