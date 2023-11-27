@@ -54,7 +54,7 @@ public class PathFindingController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.F2))
         {
-            StartFindingPath();
+            StartPathFinding();
         }
 
         switch (state)
@@ -117,9 +117,9 @@ public class PathFindingController : MonoBehaviour
 
     #region Basic Path Finding
 
-    private void StartFindingPath()
+    private void StartPathFinding()
     {
-        Debug.Log("StartFindingPath");
+        Debug.Log("StartPathFinding");
 
         startTick = System.DateTime.UtcNow.Ticks;
 
