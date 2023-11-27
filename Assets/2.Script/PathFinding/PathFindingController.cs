@@ -33,7 +33,7 @@ public class PathFindingController : MonoBehaviour
     private int[] dy = { 1, 1, 0, -1, -1, -1, 0, 1 };
     private Node startNode = null;
     private Node targetNode = null;
-    private PriorityQueue priorityQueue = new();
+    private PriorityQueue<Node> nodePriorityQueue = new();
     private List<Node> finalNodeList = new();
 
     [Header("Variables for evaluating performance")]
@@ -136,7 +136,7 @@ public class PathFindingController : MonoBehaviour
         startNode.G = 0;
         startNode.H = CalculateDistance(new Vector2Int(startX, startY), new Vector2Int(targetX, targetY));
 
-        priorityQueue.Add(startNode);
+        nodePriorityQueue.Add(startNode);
 
         FindPath();
     }
@@ -148,11 +148,11 @@ public class PathFindingController : MonoBehaviour
         long maxTicks = 10 * 10000;
         long targetTick = System.DateTime.UtcNow.Ticks + maxTicks;
 
-        while (priorityQueue.Count > 0)
+        while (nodePriorityQueue.Count > 0)
         {
             if (System.DateTime.UtcNow.Ticks > targetTick) return;
 
-            Node curNode = priorityQueue.Pop();
+            Node curNode = nodePriorityQueue.Pop();
             visitedNodeCount++;
 
             if (curNode.Equals(targetNode))
@@ -192,7 +192,7 @@ public class PathFindingController : MonoBehaviour
                     nextNode.G = moveCost;
                     nextNode.H = CalculateDistance(new Vector2Int(tx, ty), new Vector2Int(targetNode.X, targetNode.Y));
                     nextNode.parentNode = curNode;
-                    priorityQueue.Add(nextNode);
+                    nodePriorityQueue.Add(nextNode);
                 }
                 // The node already visited
                 else
@@ -201,7 +201,7 @@ public class PathFindingController : MonoBehaviour
 
                     nextNode.G = moveCost;
                     nextNode.parentNode = curNode;
-                    priorityQueue.Add(nextNode);
+                    nodePriorityQueue.Add(nextNode);
                 }
             }
         }
@@ -225,7 +225,7 @@ public class PathFindingController : MonoBehaviour
 
         startNode = null;
         targetNode = null;
-        priorityQueue.Clear();
+        nodePriorityQueue.Clear();
         finalNodeList.Clear();
 
         Debug.Log("# nodes of being visted : " + visitedNodeCount);

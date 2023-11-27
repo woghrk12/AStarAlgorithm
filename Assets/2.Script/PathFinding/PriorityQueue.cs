@@ -1,10 +1,10 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PriorityQueue
+public class PriorityQueue<T> where T : IComparable<T>
 {
-    private List<Node> itemList = null;
+    private List<T> itemList = null;
     
     public int Count => itemList.Count;
 
@@ -17,7 +17,7 @@ public class PriorityQueue
     /// Add the node to the last index of the heap tree and find appopriate position
     /// </summary>
     /// <param name="item">The item to be added</param>
-    public void Add(Node item)
+    public void Add(T item)
     {
         itemList.Add(item);
 
@@ -31,11 +31,11 @@ public class PriorityQueue
     /// Pop the minimum F value node and fix the heap tree
     /// </summary>
     /// <returns>The node that F value is minimum</returns>
-    public Node Pop()
+    public T Pop()
     {
         if (itemList.Count >= 1)
         {
-            Node minNode = itemList[0];
+            T minNode = itemList[0];
 
             // No need to fix the heap tree if the heap tree has only one item
             if (itemList.Count == 1)
@@ -55,7 +55,7 @@ public class PriorityQueue
         }
 
         Debug.LogWarning("There is no element in the priority queue.");
-        return null;
+        return default(T);
     }
 
     /// <summary>
@@ -79,16 +79,16 @@ public class PriorityQueue
         // if the node has both of the child node
         if (leftIndex < heapCount && rightIndex < heapCount)
         {
-            if (itemList[leftIndex] < itemList[rightIndex])
+            if (itemList[leftIndex].CompareTo(itemList[rightIndex]) < 0)
             {
-                if (itemList[fixIndex] <= itemList[leftIndex]) return;
+                if (itemList[fixIndex].CompareTo(itemList[leftIndex]) <= 0) return;
 
                 Swap(fixIndex, leftIndex);
                 FixHeap(leftIndex, heapCount);
             }
             else
             {
-                if (itemList[fixIndex] <= itemList[rightIndex]) return;
+                if (itemList[fixIndex].CompareTo(itemList[rightIndex]) <= 0) return;
                 Swap(fixIndex, rightIndex);
                 FixHeap(rightIndex, heapCount);
             }
@@ -96,7 +96,7 @@ public class PriorityQueue
         // if the node has only the left child node
         else if (leftIndex < heapCount)
         {
-            if (itemList[fixIndex] <= itemList[leftIndex]) return;
+            if (itemList[fixIndex].CompareTo(itemList[leftIndex]) <= 0) return;
 
             Swap(fixIndex, leftIndex);
             FixHeap(leftIndex, heapCount);
@@ -114,7 +114,7 @@ public class PriorityQueue
 
         int parent = (fixIndex + 1) / 2 - 1;
 
-        if (itemList[fixIndex] >= itemList[parent]) return;
+        if (itemList[fixIndex].CompareTo(itemList[parent]) >= 0) return;
 
         Swap(fixIndex, parent);
         BubbleUp(parent);
@@ -135,7 +135,7 @@ public class PriorityQueue
             return;
         }
 
-        Node temp = itemList[a];
+        T temp = itemList[a];
         itemList[a] = itemList[b];
         itemList[b] = temp;
     }

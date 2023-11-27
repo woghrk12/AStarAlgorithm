@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Node
+public class Node : IComparable<Node>
 {
     public Node(int x, int y, float posX, float posY, bool isWall)
     {
@@ -31,68 +29,12 @@ public class Node
 
     #endregion Path Finding
 
-    #region Operator Overrideing
+    #region IComparable Interface
 
-    public static bool operator <(Node a, Node b)
+    public int CompareTo(Node other)
     {
-        return a.F < b.F;
+        return F == other.F ? 0 : F - other.F;
     }
 
-    public static bool operator >(Node a, Node b)
-    {
-        return a.F > b.F;
-    }
-
-    public static bool operator ==(Node a, Node b)
-    {
-        return a.F == b.F;
-    }
-
-    public static bool operator !=(Node a, Node b)
-    {
-        return a.F != b.F;
-    }
-
-    public static bool operator >=(Node a, Node b)
-    {
-        return a.F >= b.F;
-    }
-
-    public static bool operator <=(Node a, Node b)
-    {
-        return a.F <= b.F;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is Node node &&
-               X == node.X &&
-               Y == node.Y &&
-               G == node.G &&
-               H == node.H &&
-               IsWall == node.IsWall &&
-               EqualityComparer<Node>.Default.Equals(parentNode, node.parentNode) &&
-               F == node.F &&
-               PosX == node.PosX &&
-               PosY == node.PosY &&
-               Pos.Equals(node.Pos);
-    }
-
-    public override int GetHashCode()
-    {
-        HashCode hash = new HashCode();
-        hash.Add(X);
-        hash.Add(Y);
-        hash.Add(G);
-        hash.Add(H);
-        hash.Add(IsWall);
-        hash.Add(parentNode);
-        hash.Add(F);
-        hash.Add(PosX);
-        hash.Add(PosY);
-        hash.Add(Pos);
-        return hash.ToHashCode();
-    }
-
-    #endregion Operator Overriding
+    #endregion IComparable Interface
 }
