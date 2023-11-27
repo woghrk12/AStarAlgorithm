@@ -28,11 +28,14 @@ public class PathFindingController : MonoBehaviour
     [SerializeField] private Transform targetTransform = null;
 
     [Header("Variables for calculating the path")]
+    private EPathFindingState state = EPathFindingState.NONE;
+    private ECalculateMode mode = ECalculateMode.NONE;
     private int[] dx = { 0, 1, 1, 1, 0, -1, -1, -1 };
     private int[] dy = { 1, 1, 0, -1, -1, -1, 0, 1 };
     private Node startNode = null;
     private Node targetNode = null;
     private List<Node> finalNodeList = new();
+    private PriorityQueue priorityQueue = new();
 
     [Header("Variables for evaluating performance")]
     private int visitedNodeCount = 0;
@@ -49,6 +52,27 @@ public class PathFindingController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F1))
         {
             InitializeBoard(topRight, bottomLeft);
+        }
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            StartFindingPath();
+        }
+
+        switch (state)
+        {
+            case EPathFindingState.CALCULATING:
+                if (mode == ECalculateMode.HEAP) FindPath();
+                break;
+
+            case EPathFindingState.COMPLETE:
+                DrawFinalNodeList();
+                ClearBoard();
+                break;
+
+            case EPathFindingState.NOTFOUND:
+                Debug.Log("Not Found");
+                ClearBoard();
+                break;
         }
     }
 
@@ -92,6 +116,105 @@ public class PathFindingController : MonoBehaviour
         }
     }
 
+    #region Basic Path Finding
+
+    private void StartFindingPath()
+    {
+        Debug.Log("StartFindingPath");
+
+        startTick = System.DateTime.UtcNow.Ticks;
+
+        state = EPathFindingState.CALCULATING;
+        mode = ECalculateMode.HEAP;
+
+        int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseOffset);
+        int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseOffset);
+        int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseOffset);
+        int targetY = Mathf.RoundToInt((targetTransform.position.y - bottomLeft.position.y) * inverseOffset);
+
+        startNode = board[startX, startY];
+        targetNode = board[targetX, targetY];
+
+        startNode.G = 0;
+        startNode.H = CalculateDistance(new Vector2Int(startX, startY), new Vector2Int(targetX, targetY));
+
+        priorityQueue.Add(startNode);
+
+        FindPath();
+    }
+
+    private void FindPath()
+    {
+        Debug.Log("FindPath");
+
+        // Max number of ticks we are allowed to continue working in one run.
+        // One tick is 1/10000 of a millisecond.
+        long maxTicks = 10 * 10000;
+        long targetTick = System.DateTime.UtcNow.Ticks + maxTicks;
+
+        while (priorityQueue.Count > 0)
+        {
+            if (System.DateTime.UtcNow.Ticks > targetTick) return;
+
+            Node curNode = priorityQueue.Pop();
+            Debug.Log($"CurNode : ({curNode.X}, {curNode.Y}), G({curNode.G}), H({curNode.H})");
+            visitedNodeCount++;
+
+            if (curNode.Equals(targetNode))
+            {
+                while (!curNode.Equals(startNode))
+                {
+                    finalNodeList.Add(curNode);
+                    curNode = curNode.parentNode;
+                }
+
+                finalNodeList.Reverse();
+                state = EPathFindingState.COMPLETE;
+
+                endTick = System.DateTime.UtcNow.Ticks;
+
+                Debug.Log($"Complete : {endTick - startTick}");
+                return;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                int tx = curNode.X + dx[i];
+                int ty = curNode.Y + dy[i];
+
+                if (tx < 0 || ty < 0 || tx >= width || ty >= height) continue;
+
+                Node nextNode = board[tx, ty];
+
+                if (nextNode.IsWall) continue;
+
+                // Horizontal and vertical cost are 10, diagonal cost is 14
+                int moveCost = curNode.G + (dx[i] == 0 || dy[i] == 0 ? 10 : 14);
+
+                // The node to be visited for the first time
+                if (nextNode.H < 0)
+                {
+                    nextNode.G = moveCost;
+                    nextNode.H = CalculateDistance(new Vector2Int(tx, ty), new Vector2Int(targetNode.X, targetNode.Y));
+                    nextNode.parentNode = curNode;
+                    priorityQueue.Add(nextNode);
+                }
+                // The node already visited
+                else
+                {
+                    if (nextNode.G <= moveCost) continue;
+
+                    nextNode.G = moveCost;
+                    nextNode.parentNode = curNode;
+                    priorityQueue.Add(nextNode);
+                }
+            }
+        }
+
+        state = EPathFindingState.NOTFOUND;
+    }
+
+    #endregion Basic Path Finding
     private void ClearBoard()
     {
         for (int i = 0; i < width; i++)
