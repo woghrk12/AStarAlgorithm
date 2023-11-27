@@ -19,7 +19,6 @@ public class PathFindingController : MonoBehaviour
     private int height = 0;
 
     [Header("Circle object for debugging the map data")]
-    [SerializeField] private GameObject posPrefab = null;
     [SerializeField] private GameObject blockPrefab = null;
     private GameObject[,] blockObjectBoard = null;
 
