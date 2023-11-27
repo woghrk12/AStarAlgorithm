@@ -25,6 +25,7 @@ public class Node : IComparable<Node>
     [Header("Variables for moving according to the path")]
     public float PosX, PosY;
 
+    public Vector2Int IndexPos => new Vector2Int(X, Y);
     public Vector2 Pos => new Vector2(PosX, PosY);
 
     #endregion Path Finding
