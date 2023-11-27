@@ -555,7 +555,7 @@ public class PathFindingController : MonoBehaviour
         {
             for (int i = 0; i < finalNodeList.Count - 1; i++)
             {
-                Debug.DrawLine(finalNodeList[i].Pos, finalNodeList[i + 1].Pos, Color.blue, 100);
+                Debug.DrawLine(finalNodeList[i].Pos, finalNodeList[i + 1].Pos, Color.green, 100);
             }
 
             Debug.Log("# nodes of path (Region Divided A*): " + finalNodeList.Count);
