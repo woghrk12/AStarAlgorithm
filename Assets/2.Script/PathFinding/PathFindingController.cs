@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum EPathFindingState { NONE = -1, CALCULATING, COMPLETE, NOTFOUND, END }
-public enum ECalculateMode { NONE = -1, HEAP, ACCELATEDHEAP, END }
 
 public class PathFindingController : MonoBehaviour
 {
@@ -20,6 +19,7 @@ public class PathFindingController : MonoBehaviour
     private int height = 0;
 
     [Header("Circle object for debugging the map data")]
+    [SerializeField] private GameObject posPrefab = null;
     [SerializeField] private GameObject blockPrefab = null;
     private GameObject[,] blockObjectBoard = null;
 
@@ -29,13 +29,12 @@ public class PathFindingController : MonoBehaviour
 
     [Header("Variables for calculating the path")]
     private EPathFindingState state = EPathFindingState.NONE;
-    private ECalculateMode mode = ECalculateMode.NONE;
     private int[] dx = { 0, 1, 1, 1, 0, -1, -1, -1 };
     private int[] dy = { 1, 1, 0, -1, -1, -1, 0, 1 };
     private Node startNode = null;
     private Node targetNode = null;
-    private List<Node> finalNodeList = new();
     private PriorityQueue priorityQueue = new();
+    private List<Node> finalNodeList = new();
 
     [Header("Variables for evaluating performance")]
     private int visitedNodeCount = 0;
@@ -61,7 +60,7 @@ public class PathFindingController : MonoBehaviour
         switch (state)
         {
             case EPathFindingState.CALCULATING:
-                if (mode == ECalculateMode.HEAP) FindPath();
+                FindPath();
                 break;
 
             case EPathFindingState.COMPLETE:
@@ -88,12 +87,12 @@ public class PathFindingController : MonoBehaviour
 
         board = new Node[width, height];
         blockObjectBoard = new GameObject[width, height];
-        
+
         float xPos = bottomLeft.position.x;
         for (int i = 0; i < width; i++)
         {
             float yPos = bottomLeft.position.y;
-            
+
             for (int j = 0; j < height; j++)
             {
                 bool isWall = false;
@@ -125,7 +124,6 @@ public class PathFindingController : MonoBehaviour
         startTick = System.DateTime.UtcNow.Ticks;
 
         state = EPathFindingState.CALCULATING;
-        mode = ECalculateMode.HEAP;
 
         int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseOffset);
         int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseOffset);
@@ -145,8 +143,6 @@ public class PathFindingController : MonoBehaviour
 
     private void FindPath()
     {
-        Debug.Log("FindPath");
-
         // Max number of ticks we are allowed to continue working in one run.
         // One tick is 1/10000 of a millisecond.
         long maxTicks = 10 * 10000;
@@ -157,7 +153,6 @@ public class PathFindingController : MonoBehaviour
             if (System.DateTime.UtcNow.Ticks > targetTick) return;
 
             Node curNode = priorityQueue.Pop();
-            Debug.Log($"CurNode : ({curNode.X}, {curNode.Y}), G({curNode.G}), H({curNode.H})");
             visitedNodeCount++;
 
             if (curNode.Equals(targetNode))
@@ -215,6 +210,7 @@ public class PathFindingController : MonoBehaviour
     }
 
     #endregion Basic Path Finding
+
     private void ClearBoard()
     {
         for (int i = 0; i < width; i++)
@@ -229,8 +225,8 @@ public class PathFindingController : MonoBehaviour
 
         startNode = null;
         targetNode = null;
-        finalNodeList.Clear();
         priorityQueue.Clear();
+        finalNodeList.Clear();
 
         Debug.Log("# nodes of being visted : " + visitedNodeCount);
         visitedNodeCount = 0;

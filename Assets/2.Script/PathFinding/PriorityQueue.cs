@@ -46,7 +46,7 @@ public class PriorityQueue
             else
             {
                 int lastIndex = itemList.Count - 1;
-                itemList[0] = itemList[lastIndex];
+                Swap(0, lastIndex);
                 itemList.RemoveAt(lastIndex);
                 FixHeap(0, itemList.Count);
             }
@@ -73,8 +73,8 @@ public class PriorityQueue
     /// <param name="heapCount">The count of nodes</param>
     private void FixHeap(int fixIndex, int heapCount)
     {
-        int leftIndex = fixIndex * 2;
-        int rightIndex = fixIndex * 2 + 1;
+        int leftIndex = (fixIndex + 1) * 2 - 1;
+        int rightIndex = (fixIndex + 1) * 2;
 
         // if the node has both of the child node
         if (leftIndex < heapCount && rightIndex < heapCount)
@@ -112,7 +112,7 @@ public class PriorityQueue
         // if the node to be fixed reach the root node
         if (fixIndex == 0) return;
 
-        int parent = fixIndex / 2;
+        int parent = (fixIndex + 1) / 2 - 1;
 
         if (itemList[fixIndex] >= itemList[parent]) return;
 
