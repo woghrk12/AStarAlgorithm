@@ -99,6 +99,13 @@ public class PathFindingController : MonoBehaviour
 
     #region Path Finding
 
+    /// <summary>
+    /// Initialize the board data.
+    /// Divide the distance of 1 unit in world coordinates by the interval.
+    /// Convert nodes in the world coordinate to the array cooridinate.
+    /// </summary>
+    /// <param name="topRight">The transform indicating the max x and y components of the board</param>
+    /// <param name="bottomLeft">The transform indicating the min x and y components of the board</param>
     private void InitializeBoard(Transform topRight, Transform bottomLeft)
     {
         Vector2Int topRightPos = new Vector2Int(Mathf.CeilToInt(topRight.position.x * 10f), Mathf.CeilToInt(topRight.position.y * 10f));
@@ -110,6 +117,7 @@ public class PathFindingController : MonoBehaviour
         board = new Node[width, height];
         blockObjectBoard = new GameObject[width, height];
 
+        // Check whether the node is reachable
         float xPos = bottomLeft.position.x;
         for (int i = 0; i < width; i++)
         {
@@ -139,11 +147,15 @@ public class PathFindingController : MonoBehaviour
 
     #region Basic Path Finding
 
+    /// <summary>
+    /// Start the path finding algorithm based on the map data.
+    /// </summary>
     private void StartPathFinding()
     {
         state = EPathFindingState.CALCULATING;
         mode = EFindingMode.BASIC;
 
+        // Set the start and target node in the array coordinate
         int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseInterval);
         int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseInterval);
         int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseInterval);
@@ -152,6 +164,7 @@ public class PathFindingController : MonoBehaviour
         startNode = board[startX, startY];
         targetNode = board[targetX, targetY];
 
+        // Initialize the start node
         startNode.G = 0;
         startNode.H = CalculateDistance(new Vector2Int(startX, startY), new Vector2Int(targetX, targetY));
 
@@ -160,6 +173,9 @@ public class PathFindingController : MonoBehaviour
         FindPath();
     }
 
+    /// <summary>
+    /// Explore the next node with the lowest F value until target node is found.
+    /// </summary>
     private void FindPath()
     {
         // Max number of ticks we are allowed to continue working in one run.
@@ -176,6 +192,7 @@ public class PathFindingController : MonoBehaviour
             curNode = nodePriorityQueue.Pop();
             visitedNodeCount++;
 
+            // if target node is found
             if (curNode.Equals(targetNode))
             {
                 while (!curNode.Equals(startNode))
@@ -231,11 +248,15 @@ public class PathFindingController : MonoBehaviour
 
     #region Path Finding with Region
 
+    /// <summary>
+    /// Start the path finding algorithm based on the map data divided into the region.
+    /// </summary>
     private void StartPathFindingWithRegion()
     {
         state = EPathFindingState.CALCULATING;
         mode = EFindingMode.REGION;
 
+        // Set the start and target node in the array coordinate
         int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseInterval);
         int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseInterval);
         int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseInterval);
@@ -255,6 +276,9 @@ public class PathFindingController : MonoBehaviour
         FindPathWithRegion();
     }
 
+    /// <summary>
+    /// Explore the next region until target region is found. (1st A* algorithm)
+    /// </summary>
     private void FindRegionPath(Node startNode, Node targetNode)
     {
         Region startRegion = null, targetRegion = null;
@@ -277,6 +301,7 @@ public class PathFindingController : MonoBehaviour
         {
             Region curRegion = regionPriorityQueue.Pop();
 
+            // if target region is found
             if (targetRegion.Equals(curRegion))
             {
                 while (curRegion != startRegion)
@@ -293,6 +318,8 @@ public class PathFindingController : MonoBehaviour
             {
                 Region adjRegion = regionList[(int)adjRegionIndex];
                 int moveCost = curRegion.G + CalculateDistance(curRegion.Position, adjRegion.Position);
+
+                // The region to be visited for the first time
                 if (adjRegion.G < 0)
                 {
                     adjRegion.G = moveCost;
@@ -300,6 +327,7 @@ public class PathFindingController : MonoBehaviour
                     adjRegion.parentRegion = curRegion;
                     regionPriorityQueue.Add(adjRegion);
                 }
+                // The region already visited
                 else
                 {
                     if (adjRegion.G <= moveCost) continue;
@@ -312,6 +340,9 @@ public class PathFindingController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Explore the next node with the lowest F value until target node is found. (2nd A* algorithm)
+    /// </summary>
     private void FindPathWithRegion()
     {
         if (regionIndex >= finalRegionList.Count - 1)
@@ -324,6 +355,9 @@ public class PathFindingController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Explore the next node until reaching the next region.
+    /// </summary>
     private void FindPathToOtherRegion()
     {
         // Max number of ticks we are allowed to continue working in one run.
@@ -340,6 +374,7 @@ public class PathFindingController : MonoBehaviour
             curNode = nodePriorityQueue.Pop();
             visitedNodeCount++;
 
+            // if next region is found
             if (finalRegionList[regionIndex].CheckInRegion(curNode.IndexPos))
             {
                 Node startNode = tempStartNode;
@@ -375,6 +410,7 @@ public class PathFindingController : MonoBehaviour
                 int tx = curNode.X + dx[i];
                 int ty = curNode.Y + dy[i];
 
+                // Out of range
                 if (tx < 0 || ty < 0 || tx >= width || ty >= height) continue;
 
                 Node nextNode = board[tx, ty];
@@ -407,6 +443,9 @@ public class PathFindingController : MonoBehaviour
         state = EPathFindingState.NOTFOUND;
     }
 
+    /// <summary>
+    /// Explore the next node until target node is found.
+    /// </summary>
     private void FindPathInRegion()
     {
         // Max number of ticks we are allowed to continue working in one run.
@@ -423,6 +462,7 @@ public class PathFindingController : MonoBehaviour
             curNode = nodePriorityQueue.Pop();
             visitedNodeCount++;
 
+            // if target node is found
             if (curNode.Equals(targetNode))
             {
                 while (curNode != tempStartNode)
@@ -450,6 +490,7 @@ public class PathFindingController : MonoBehaviour
                 int tx = curNode.X + dx[i];
                 int ty = curNode.Y + dy[i];
 
+                // Out of range
                 if (tx < 0 || ty < 0 || tx >= width || ty >= height) continue;
 
                 Node nextNode = board[tx, ty];
@@ -484,8 +525,12 @@ public class PathFindingController : MonoBehaviour
 
     #endregion Path Finding with Region
 
+    /// <summary>
+    /// Clear the board data.
+    /// </summary>
     private void ClearBoard()
     {
+        // Clear the nodes
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -496,6 +541,7 @@ public class PathFindingController : MonoBehaviour
             }
         }
 
+        // Clear the regions
         foreach (Region region in regionList)
         {
             region.G = -1;
@@ -503,14 +549,18 @@ public class PathFindingController : MonoBehaviour
             region.parentRegion = null;
         }
 
+        // Clear the node variables
         startNode = null;
         targetNode = null;
+
+        // Clear the priority queue
         nodePriorityQueue.Clear();
         finalNodeList.Clear();
         regionPriorityQueue.Clear();
         finalRegionList.Clear();
         regionIndex = 0;
 
+        // Debug the number of visited nodes
         if (mode == EFindingMode.BASIC)
         {
             Debug.Log("# nodes of being visted (Basic A*) : " + visitedNodeCount);
@@ -540,6 +590,9 @@ public class PathFindingController : MonoBehaviour
         return e1 * 10 + e2 * 14;
     }
 
+    /// <summary>
+    /// Draw the path from result of the executed path finding algorithm
+    /// </summary>
     private void DrawFinalNodeList()
     {
         if (mode == EFindingMode.BASIC)
