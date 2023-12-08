@@ -14,18 +14,61 @@ public class Node : IComparable<Node>
 
     #region Path Finding
 
-    [Header("Variables for path finding")]
-    public int X, Y;
-    public int G = -1, H = -1;
+    /// <summary>
+    /// The x component of the position in the array coordinate.
+    /// </summary>
+    public int X;
+
+    /// <summary>
+    /// The y component of the position in the array coordinate.
+    /// </summary>
+    public int Y;
+
+    /// <summary>
+    /// The cost used to move to the current node.
+    /// </summary>
+    public int H = -1;
+
+    /// <summary>
+    /// The estimated cost required to reach the target node.
+    /// </summary>
+    public int G = -1;
+
+    /// <summary>
+    /// Whether the node is not reachable by the character.
+    /// True if the node is set as the wall.
+    /// </summary>
     public bool IsWall;
+
+    /// <summary>
+    /// The parent node in the path to reach the current node.
+    /// </summary>
     public Node parentNode;
 
+    /// <summary>
+    /// The sum of G and H value.
+    /// Used as a reference for exploring the next node.
+    /// </summary>
     public int F => G + H;
 
-    [Header("Variables for moving according to the path")]
-    public float PosX, PosY;
+    /// <summary>
+    /// The x component of the position in the world coordinate.
+    /// </summary>
+    public float PosX;
 
+    /// <summary>
+    /// The y component of the position in the world coordinate.
+    /// </summary>
+    public float PosY;
+
+    /// <summary>
+    /// The position in the array coordinate.
+    /// </summary>
     public Vector2Int IndexPos => new Vector2Int(X, Y);
+
+    /// <summary>
+    /// The position in the world coordinate.
+    /// </summary>
     public Vector2 Pos => new Vector2(PosX, PosY);
 
     #endregion Path Finding
