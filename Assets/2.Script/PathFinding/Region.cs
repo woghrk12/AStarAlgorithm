@@ -10,40 +10,81 @@ public enum ERegion { NONE = -1,
 
 public class Region : MonoBehaviour, IComparable<Region>
 {
+    #region Variables
+
     [SerializeField] private ERegion[] adjRegion = null;
 
+    [Header("Vector variables for setting the region area")]
     private Vector2Int position = Vector2Int.zero;
     private Vector2Int topRightPos = Vector2Int.zero;
     private Vector2Int bottomLeftPos = Vector2Int.zero;
 
-    public Vector2Int Position => position;
+    [Header("Variables for performing the path finding algorithm")]
+    [HideInInspector] public int G = -1, H = -1;
+    [HideInInspector] public Region parentRegion = null;
 
-    public int G = -1, H = -1;
-    public int F => G + H;
+    #endregion Variables
 
-    public Region parentRegion = null;
+    #region Properties
 
+    /// <summary>
+    /// The array containing the indices of adjacent regions.
+    /// The elements are directly set in the Editor based on the map layout 
+    /// </summary>
     public ERegion[] AdjRegion => adjRegion;
 
-    public void InitRegion(Vector3 basePosition, float inverseOffset)
+    /// <summary>
+    /// The position of the region.
+    /// Used in path finding algorithm between the regions.
+    /// </summary>
+    public Vector2Int Position => position;
+
+    /// <summary>
+    /// F value which returns the sum of H and G for performing the A* algorithm.
+    /// <para>
+    /// H : The cost used to move to the current region.
+    /// G : The estimated cost required to reach the target region.
+    /// </para>
+    /// </summary>
+    public int F => G + H;
+
+    #endregion Properties
+
+    #region Methods
+
+    /// <summary>
+    /// Initialize the variables of the region.
+    /// Convert the top-right and bottom-left position of the region to the array coordinate.
+    /// The top-right position is rounded up, and the bottom-left position is rounded down.
+    /// </summary>
+    /// <param name="basePosition">The origin position in the array in the array coordinate</param>
+    /// <param name="inverseInterval">The inverse of the interval</param>
+    public void InitRegion(Vector3 basePosition, float inverseInterval)
     {
         Transform regionTransform = GetComponent<Transform>();
         Transform topRight = regionTransform.GetChild(0);
         Transform bottomLeft = regionTransform.GetChild(1);
 
-        position.x = Mathf.RoundToInt((regionTransform.position.x - basePosition.x) * inverseOffset);
-        position.y = Mathf.RoundToInt((regionTransform.position.y - basePosition.y) * inverseOffset);
-        topRightPos.x = Mathf.FloorToInt((topRight.position.x - basePosition.x) * inverseOffset);
-        topRightPos.y = Mathf.FloorToInt((topRight.position.y - basePosition.y) * inverseOffset);
-        bottomLeftPos.x = Mathf.CeilToInt((bottomLeft.position.x - basePosition.x) * inverseOffset);
-        bottomLeftPos.y = Mathf.CeilToInt((bottomLeft.position.y - basePosition.y) * inverseOffset);
+        position.x = Mathf.RoundToInt((regionTransform.position.x - basePosition.x) * inverseInterval);
+        position.y = Mathf.RoundToInt((regionTransform.position.y - basePosition.y) * inverseInterval);
+        topRightPos.x = Mathf.FloorToInt((topRight.position.x - basePosition.x) * inverseInterval);
+        topRightPos.y = Mathf.FloorToInt((topRight.position.y - basePosition.y) * inverseInterval);
+        bottomLeftPos.x = Mathf.CeilToInt((bottomLeft.position.x - basePosition.x) * inverseInterval);
+        bottomLeftPos.y = Mathf.CeilToInt((bottomLeft.position.y - basePosition.y) * inverseInterval);
     }
 
+    /// <summary>
+    /// Check whether the given position is inside the region.
+    /// </summary>
+    /// <param name="pos">The position in the array coordinate to check</param>
+    /// <returns>true if the given position is inside the region</returns>
     public bool CheckInRegion(Vector2Int pos)
     {
         return topRightPos.x >= pos.x && topRightPos.y >= pos.y
             && bottomLeftPos.x <= pos.x && bottomLeftPos.y <= pos.y;
     }
+
+    #endregion Methods
 
     #region IComparable Interface 
 
