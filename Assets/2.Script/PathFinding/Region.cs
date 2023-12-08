@@ -19,8 +19,19 @@ public class Region : MonoBehaviour, IComparable<Region>
     private Vector2Int topRightPos = Vector2Int.zero;
     private Vector2Int bottomLeftPos = Vector2Int.zero;
 
-    [Header("Variables for performing the path finding algorithm")]
-    [HideInInspector] public int G = -1, H = -1;
+    /// <summary>
+    /// The estimated cost required to reach the target region.
+    /// </summary>
+    [HideInInspector] public int G = -1;
+
+    /// <summary>
+    /// The cost used to move to the current region.
+    /// </summary>
+    [HideInInspector] public int H = -1;
+
+    /// <summary>
+    /// The parent region in the path to reach the current region.
+    /// </summary>
     [HideInInspector] public Region parentRegion = null;
 
     #endregion Variables
@@ -40,11 +51,8 @@ public class Region : MonoBehaviour, IComparable<Region>
     public Vector2Int Position => position;
 
     /// <summary>
-    /// F value which returns the sum of H and G for performing the A* algorithm.
-    /// <para>
-    /// H : The cost used to move to the current region.
-    /// G : The estimated cost required to reach the target region.
-    /// </para>
+    /// The sum of G and H value.
+    /// Used as a reference for exploring the next region.
     /// </summary>
     public int F => G + H;
 
