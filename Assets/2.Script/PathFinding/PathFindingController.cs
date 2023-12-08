@@ -10,9 +10,9 @@ public class PathFindingController : MonoBehaviour
     [SerializeField] private Transform topRight = null;
     [SerializeField] private Transform bottomLeft = null;
 
-    [Header("Offset value between moving points")]
-    [SerializeField] private float offset = 0.1f;
-    private float inverseOffset = 0f;
+    [Header("Interval value between moving points")]
+    [SerializeField] private float interval = 0.1f;
+    private float inverseInterval = 0f;
 
     [Header("Map data")]
     private Node[,] board = null;
@@ -53,12 +53,12 @@ public class PathFindingController : MonoBehaviour
 
     private void Awake()
     {
-        inverseOffset = 1 / offset;
+        inverseInterval = 1 / interval;
 
         foreach (Transform child in regionParent)
         {
             Region region = child.GetComponent<Region>();
-            region.InitRegion(bottomLeft.position, inverseOffset);
+            region.InitRegion(bottomLeft.position, inverseInterval);
             regionList.Add(region);
         }
     }
@@ -104,8 +104,8 @@ public class PathFindingController : MonoBehaviour
         Vector2Int topRightPos = new Vector2Int(Mathf.CeilToInt(topRight.position.x * 10f), Mathf.CeilToInt(topRight.position.y * 10f));
         Vector2Int bottomLeftPos = new Vector2Int(Mathf.FloorToInt(bottomLeft.position.x * 10f), Mathf.FloorToInt(bottomLeft.position.y * 10f));
 
-        width = Mathf.CeilToInt((topRightPos.x - bottomLeftPos.x) * inverseOffset);
-        height = Mathf.CeilToInt((topRightPos.y - bottomLeftPos.y) * inverseOffset);
+        width = Mathf.CeilToInt((topRightPos.x - bottomLeftPos.x) * inverseInterval);
+        height = Mathf.CeilToInt((topRightPos.y - bottomLeftPos.y) * inverseInterval);
 
         board = new Node[width, height];
         blockObjectBoard = new GameObject[width, height];
@@ -130,10 +130,10 @@ public class PathFindingController : MonoBehaviour
 
                 board[i, j] = new Node(i, j, xPos, yPos, isWall);
 
-                yPos += offset;
+                yPos += interval;
             }
 
-            xPos += offset;
+            xPos += interval;
         }
     }
 
@@ -144,10 +144,10 @@ public class PathFindingController : MonoBehaviour
         state = EPathFindingState.CALCULATING;
         mode = EFindingMode.BASIC;
 
-        int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseOffset);
-        int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseOffset);
-        int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseOffset);
-        int targetY = Mathf.RoundToInt((targetTransform.position.y - bottomLeft.position.y) * inverseOffset);
+        int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseInterval);
+        int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseInterval);
+        int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseInterval);
+        int targetY = Mathf.RoundToInt((targetTransform.position.y - bottomLeft.position.y) * inverseInterval);
 
         startNode = board[startX, startY];
         targetNode = board[targetX, targetY];
@@ -236,10 +236,10 @@ public class PathFindingController : MonoBehaviour
         state = EPathFindingState.CALCULATING;
         mode = EFindingMode.REGION;
 
-        int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseOffset);
-        int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseOffset);
-        int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseOffset);
-        int targetY = Mathf.RoundToInt((targetTransform.position.y - bottomLeft.position.y) * inverseOffset);
+        int startX = Mathf.RoundToInt((startTransform.position.x - bottomLeft.position.x) * inverseInterval);
+        int startY = Mathf.RoundToInt((startTransform.position.y - bottomLeft.position.y) * inverseInterval);
+        int targetX = Mathf.RoundToInt((targetTransform.position.x - bottomLeft.position.x) * inverseInterval);
+        int targetY = Mathf.RoundToInt((targetTransform.position.y - bottomLeft.position.y) * inverseInterval);
 
         startNode = board[startX, startY];
         targetNode = board[targetX, targetY];
