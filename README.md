@@ -1,5 +1,7 @@
 # 📌 프로젝트 소개
 
+최적화 과정 : https://memmaeranger.tistory.com/30
+
 이 프로젝트는 Unity 기반의 실시간 게임에서 A* 알고리즘을 적용할 때 발생하는 성능 문제를 해결하기 위한 개선 실험입니다.
 
 기존 프로젝트에서는 다수의 캐릭터가 동시에 경로를 계산할 경우, 기본 A* 알고리즘의 전체 맵 탐색 특성 때문에 프레임 드랍과 멈춤 현상이 발생했습니다.
@@ -63,7 +65,36 @@
 - 현재 위치한 Region 내부에서만 노드 단위의 A\*를 수행합니다.
 - 다음 Region에 도착하면 해당 Region을 새로운 타겟으로 설정하고 다시 노드 단위의 A\*를 수행합니다.
 
-## ✅ 기대 효과
+# 📊 실험 결과 및 성능 비교
+개선된 Region 기반 A* 알고리즘이 실제로 얼마나 효과적인지 확인하기 위해, 기존 A* 방식과 개선 방식 모두 동일한 조건에서 테스트를 진행했습니다.
+- 동일한 시작 위치(Start)와 목표 위치(Target) 설정
+- 맵은 실제 게임 프로젝트에서 사용된 복잡한 맵
+- 두 방식 모두 유니티 에디터에서 `F2`, `F3` 키를 통해 직접 실행
+- 결과는 알고리즘을 수행하면서 방문한 노드 수와 생성된 경로의 길이를 디버그 콘솔에 출력
+
+## Test 1
+1. 기존 A* 알고리즘
+  - \# nodes of path : 181
+  - \# nodes of being visited : 3714
+2. Region 기반 A* 알고리즘
+  - \# nodes of path : 184 (기존 대비 101.6%)
+  - \# nodes of being visited : 718 (기존 대비 19.3%)
+<p align="center">
+<img width="945" height="427" alt="image" src="https://github.com/user-attachments/assets/a5544d79-1cf0-4784-a30e-514b66292d29" />
+</p>
+
+## Test 2
+1. 기존 A* 알고리즘
+  - \# nodes of path : 140
+  - \# nodes of being visited : 2370 
+2. Region 기반 A* 알고리즘
+  - \# nodes of path : 143 (기존 대비 102.1%)
+  - \# nodes of being visited : 560 (기존 대비 23.6%)
+<p align="center">
+<img width="560" height="593" alt="image" src="https://github.com/user-attachments/assets/20afa84f-31d5-4ac2-922b-d0dfbc9baf05" />
+</p>
+
+# ✅ 결론
 - 노드 방문 수가 줄어들어 경로 탐색 비용이 감소
 - 이로 인해 동시에 여러 유닛이 A\*를 수행하더라도 프레임 유지 가능
 - Region 단위로 경로를 재활용하거나, **Region 수준 캐싱** 등의 추가 확장이 가능
